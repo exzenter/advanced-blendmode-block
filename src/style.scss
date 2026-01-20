@@ -1,53 +1,49 @@
 /**
  * Frontend styles for Advanced Blend Mode Block
- * Stripe-style triple layer effect
+ * Stripe-style triple layer effect with SIBLING structure
  */
 
 /* Simple Blend Mode */
 .abmb-blend-simple {
-    mix-blend-mode: var(--abmb-blend-mode, normal);
+    mix-blend-mode: var(--abmb-blend-mode, normal) !important;
 }
 
-/* Stripe Effect - Triple Layer */
-.abmb-stripe-wrapper {
+/* ============================================
+   STRIPE EFFECT - SIBLING STRUCTURE
+   Structure: <h2 class="base">Text</h2>
+              <div class="burn">Text</div>
+              <div class="soft">Text</div>
+   All 3 are siblings positioned via JS
+   ============================================ */
+
+/* Base layer - the original element (h1, h2, p, etc.) */
+.abmb-stripe-base {
     position: relative !important;
-    isolation: isolate;
+    color: var(--abmb-base-color, #bdc6d2) !important;
+    z-index: 1;
+}
 
-    /* Base layer starts a stacking context */
-    .abmb-stripe-base {
-        position: relative !important;
-        z-index: 1;
-        color: var(--abmb-base-color, #bdc6d2) !important;
-    }
+/* Overlay layers - sibling divs that overlay the base */
+.abmb-stripe-burn,
+.abmb-stripe-soft {
+    position: absolute !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    /* Font properties inherited via JS by copying computed styles */
+}
 
-    /* Shared styles for overlay layers */
-    .abmb-stripe-burn,
-    .abmb-stripe-soft {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
+/* Color burn layer */
+.abmb-stripe-burn {
+    color: var(--abmb-overlay-color, #3a3a3a) !important;
+    mix-blend-mode: var(--abmb-blend-mode, color-burn) !important;
+    z-index: 2;
+}
 
-        /* Force transparency so we only see the text effect */
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-
-        pointer-events: none;
-        user-select: none;
-        z-index: 2;
-    }
-
-    /* Color burn layer */
-    .abmb-stripe-burn {
-        color: var(--abmb-overlay-color, #3a3a3a) !important;
-        mix-blend-mode: var(--abmb-blend-mode, color-burn) !important;
-    }
-
-    /* Soft overlay */
-    .abmb-stripe-soft {
-        color: var(--abmb-overlay-color, #3a3a3a) !important;
-        opacity: var(--abmb-overlay-opacity, 0.3) !important;
-    }
+/* Soft overlay layer */
+.abmb-stripe-soft {
+    color: var(--abmb-overlay-color, #3a3a3a) !important;
+    opacity: var(--abmb-overlay-opacity, 0.3) !important;
+    z-index: 3;
 }
