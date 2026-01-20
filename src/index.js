@@ -15,6 +15,8 @@ import {
     RadioControl,
     ColorPalette,
     ColorIndicator,
+    Dropdown,
+    Button,
     __experimentalHStack as HStack,
     __experimentalVStack as VStack,
     BaseControl,
@@ -59,7 +61,8 @@ const DEFAULT_BLEND_SETTINGS = {
     enabled: false,
     mode: 'simple',
     blendMode: 'color-burn',
-    burnBlendMode: 'normal',      // Separate blend mode for burn layer (default: unset/normal)
+    baseBlendMode: 'color-burn',  // Blend mode for base element (default: color-burn)
+    burnBlendMode: 'normal',      // Blend mode for burn layer (default: normal/unset)
     baseColor: '#bdc6d2',         // Base text color
     overlayColor: '#0000003b',    // Overlay color with alpha (black 23% opacity)
     softOpacity: 1,               // Soft layer opacity
@@ -157,43 +160,73 @@ const withBlendModeControls = createHigherOrderComponent((BlockEdit) => {
                                         {blendSettings.mode === 'stripe' && (
                                             <>
                                                 <BaseControl
-                                                    label={
-                                                        <HStack>
-                                                            <span>{__('Base Color', 'advanced-blend-mode-block')}</span>
-                                                            <ColorIndicator colorValue={blendSettings.baseColor} />
-                                                        </HStack>
-                                                    }
-                                                    help={__('The underlying text color', 'advanced-blend-mode-block')}
+                                                    label={__('Base Color', 'advanced-blend-mode-block')}
                                                 >
-                                                    <ColorPalette
-                                                        value={blendSettings.baseColor}
-                                                        onChange={(baseColor) => updateBlendSettings({ baseColor })}
-                                                        enableAlpha={true}
+                                                    <Dropdown
+                                                        renderToggle={({ isOpen, onToggle }) => (
+                                                            <Button
+                                                                onClick={onToggle}
+                                                                aria-expanded={isOpen}
+                                                                style={{ padding: '4px 8px', height: 'auto' }}
+                                                            >
+                                                                <HStack spacing={2}>
+                                                                    <ColorIndicator colorValue={blendSettings.baseColor} />
+                                                                    <span>{blendSettings.baseColor || 'Select'}</span>
+                                                                </HStack>
+                                                            </Button>
+                                                        )}
+                                                        renderContent={() => (
+                                                            <div style={{ padding: '16px', minWidth: '260px' }}>
+                                                                <ColorPalette
+                                                                    value={blendSettings.baseColor}
+                                                                    onChange={(baseColor) => updateBlendSettings({ baseColor })}
+                                                                    enableAlpha={true}
+                                                                />
+                                                            </div>
+                                                        )}
                                                     />
                                                 </BaseControl>
 
                                                 <BaseControl
-                                                    label={
-                                                        <HStack>
-                                                            <span>{__('Overlay Color', 'advanced-blend-mode-block')}</span>
-                                                            <ColorIndicator colorValue={blendSettings.overlayColor} />
-                                                        </HStack>
-                                                    }
-                                                    help={__('Color for both burn and soft layers (supports opacity)', 'advanced-blend-mode-block')}
+                                                    label={__('Overlay Color', 'advanced-blend-mode-block')}
                                                 >
-                                                    <ColorPalette
-                                                        value={blendSettings.overlayColor}
-                                                        onChange={(overlayColor) => updateBlendSettings({ overlayColor })}
-                                                        enableAlpha={true}
+                                                    <Dropdown
+                                                        renderToggle={({ isOpen, onToggle }) => (
+                                                            <Button
+                                                                onClick={onToggle}
+                                                                aria-expanded={isOpen}
+                                                                style={{ padding: '4px 8px', height: 'auto' }}
+                                                            >
+                                                                <HStack spacing={2}>
+                                                                    <ColorIndicator colorValue={blendSettings.overlayColor} />
+                                                                    <span>{blendSettings.overlayColor || 'Select'}</span>
+                                                                </HStack>
+                                                            </Button>
+                                                        )}
+                                                        renderContent={() => (
+                                                            <div style={{ padding: '16px', minWidth: '260px' }}>
+                                                                <ColorPalette
+                                                                    value={blendSettings.overlayColor}
+                                                                    onChange={(overlayColor) => updateBlendSettings({ overlayColor })}
+                                                                    enableAlpha={true}
+                                                                />
+                                                            </div>
+                                                        )}
                                                     />
                                                 </BaseControl>
+
+                                                <SelectControl
+                                                    label={__('Base Layer Blend Mode', 'advanced-blend-mode-block')}
+                                                    value={blendSettings.baseBlendMode || 'color-burn'}
+                                                    options={BLEND_MODES}
+                                                    onChange={(baseBlendMode) => updateBlendSettings({ baseBlendMode })}
+                                                />
 
                                                 <SelectControl
                                                     label={__('Burn Layer Blend Mode', 'advanced-blend-mode-block')}
                                                     value={blendSettings.burnBlendMode || 'normal'}
                                                     options={BLEND_MODES}
                                                     onChange={(burnBlendMode) => updateBlendSettings({ burnBlendMode })}
-                                                    help={__('Mix blend mode for the burn layer', 'advanced-blend-mode-block')}
                                                 />
 
                                                 <RangeControl

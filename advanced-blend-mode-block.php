@@ -164,15 +164,17 @@ function abmb_render_block_with_blend( $block_content, $block ) {
         $inner_content = abmb_get_inner_text_content( $block_content );
         
         // Get additional settings with new defaults
+        $base_blend_mode = $blend_settings['baseBlendMode'] ?? 'color-burn';
         $burn_blend_mode = $blend_settings['burnBlendMode'] ?? 'normal';
         $soft_opacity = $blend_settings['softOpacity'] ?? 1;
         $soft_z_index = $blend_settings['softZIndex'] ?? -2;
         
         // CSS custom properties for the base element
         $css_vars = sprintf(
-            '--abmb-base-color: %s; --abmb-overlay-color: %s; --abmb-burn-blend-mode: %s; --abmb-soft-opacity: %s; --abmb-soft-z-index: %s;',
+            '--abmb-base-color: %s; --abmb-overlay-color: %s; --abmb-base-blend-mode: %s; --abmb-burn-blend-mode: %s; --abmb-soft-opacity: %s; --abmb-soft-z-index: %s;',
             esc_attr( $base_color ),
             esc_attr( $overlay_color ),
+            esc_attr( $base_blend_mode ),
             esc_attr( $burn_blend_mode ),
             esc_attr( $soft_opacity ),
             esc_attr( $soft_z_index )

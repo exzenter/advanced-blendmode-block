@@ -20,6 +20,7 @@
 .abmb-stripe-base {
     position: relative !important;
     color: var(--abmb-base-color, #bdc6d2) !important;
+    mix-blend-mode: var(--abmb-base-blend-mode, color-burn) !important;
     z-index: 1;
 }
 
