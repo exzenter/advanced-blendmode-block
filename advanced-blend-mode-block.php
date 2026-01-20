@@ -163,13 +163,19 @@ function abmb_render_block_with_blend( $block_content, $block ) {
         // Extract inner text content for the sibling divs
         $inner_content = abmb_get_inner_text_content( $block_content );
         
+        // Get additional settings with new defaults
+        $burn_blend_mode = $blend_settings['burnBlendMode'] ?? 'normal';
+        $soft_opacity = $blend_settings['softOpacity'] ?? 1;
+        $soft_z_index = $blend_settings['softZIndex'] ?? -2;
+        
         // CSS custom properties for the base element
         $css_vars = sprintf(
-            '--abmb-blend-mode: %s; --abmb-base-color: %s; --abmb-overlay-color: %s; --abmb-overlay-opacity: %s;',
-            esc_attr( $blend_mode ),
+            '--abmb-base-color: %s; --abmb-overlay-color: %s; --abmb-burn-blend-mode: %s; --abmb-soft-opacity: %s; --abmb-soft-z-index: %s;',
             esc_attr( $base_color ),
             esc_attr( $overlay_color ),
-            esc_attr( $overlay_opacity )
+            esc_attr( $burn_blend_mode ),
+            esc_attr( $soft_opacity ),
+            esc_attr( $soft_z_index )
         );
         
         // Add class to original element (allow leading whitespace)

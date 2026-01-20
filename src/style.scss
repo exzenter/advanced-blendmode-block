@@ -31,19 +31,18 @@
     user-select: none !important;
     margin: 0 !important;
     padding: 0 !important;
-    /* Font properties inherited via JS by copying computed styles */
 }
 
-/* Color burn layer */
+/* Color burn layer - with configurable blend mode */
 .abmb-stripe-burn {
-    color: var(--abmb-overlay-color, #3a3a3a) !important;
-    mix-blend-mode: var(--abmb-blend-mode, color-burn) !important;
+    color: var(--abmb-overlay-color, #0000003b) !important;
+    mix-blend-mode: var(--abmb-burn-blend-mode, normal) !important;
     z-index: 2;
 }
 
-/* Soft overlay layer */
+/* Soft overlay layer - behind base with opacity */
 .abmb-stripe-soft {
-    color: var(--abmb-overlay-color, #3a3a3a) !important;
-    opacity: var(--abmb-overlay-opacity, 0.3) !important;
-    z-index: 3;
+    color: var(--abmb-overlay-color, #0000003b) !important;
+    opacity: var(--abmb-soft-opacity, 1) !important;
+    z-index: var(--abmb-soft-z-index, -2);
 }

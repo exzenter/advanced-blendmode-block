@@ -7,16 +7,18 @@
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { InspectorControls } from '@wordpress/block-editor';
-import { 
-    PanelBody, 
-    ToggleControl, 
-    SelectControl, 
+import {
+    PanelBody,
+    ToggleControl,
+    SelectControl,
     RangeControl,
     RadioControl,
-    ColorPicker,
+    ColorPalette,
+    ColorIndicator,
     __experimentalHStack as HStack,
     __experimentalVStack as VStack,
-    BaseControl
+    BaseControl,
+    TextControl
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -26,7 +28,7 @@ import './style.scss';
 // Get supported blocks from PHP
 const SUPPORTED_BLOCKS = window.abmbSettings?.supportedBlocks || [
     'core/paragraph',
-    'core/heading', 
+    'core/heading',
     'core/group',
     'core/row',
     'core/stack'
@@ -52,21 +54,23 @@ const BLEND_MODES = [
     { label: 'Luminosity', value: 'luminosity' },
 ];
 
-// Default settings
+// Default settings (matching user's tested values)
 const DEFAULT_BLEND_SETTINGS = {
     enabled: false,
     mode: 'simple',
     blendMode: 'color-burn',
-    baseColor: '#bdc6d2',
-    overlayColor: '#3a3a3a',
-    overlayOpacity: 0.3
+    burnBlendMode: 'normal',      // Separate blend mode for burn layer (default: unset/normal)
+    baseColor: '#bdc6d2',         // Base text color
+    overlayColor: '#0000003b',    // Overlay color with alpha (black 23% opacity)
+    softOpacity: 1,               // Soft layer opacity
+    softZIndex: -2                // Soft layer z-index (behind base)
 };
 
 /**
  * Add blend mode attributes to supported blocks
  */
-function addBlendModeAttributes( settings, name ) {
-    if ( ! SUPPORTED_BLOCKS.includes( name ) ) {
+function addBlendModeAttributes(settings, name) {
+    if (!SUPPORTED_BLOCKS.includes(name)) {
         return settings;
     }
 
@@ -91,20 +95,20 @@ addFilter(
 /**
  * Add blend mode controls to block inspector
  */
-const withBlendModeControls = createHigherOrderComponent( ( BlockEdit ) => {
-    return ( props ) => {
+const withBlendModeControls = createHigherOrderComponent((BlockEdit) => {
+    return (props) => {
         const { name, attributes, setAttributes, isSelected } = props;
 
-        if ( ! SUPPORTED_BLOCKS.includes( name ) ) {
-            return <BlockEdit { ...props } />;
+        if (!SUPPORTED_BLOCKS.includes(name)) {
+            return <BlockEdit {...props} />;
         }
 
         const blendSettings = {
             ...DEFAULT_BLEND_SETTINGS,
-            ...( attributes.advancedBlendMode || {} )
+            ...(attributes.advancedBlendMode || {})
         };
 
-        const updateBlendSettings = ( newSettings ) => {
+        const updateBlendSettings = (newSettings) => {
             setAttributes({
                 advancedBlendMode: {
                     ...blendSettings,
@@ -115,70 +119,90 @@ const withBlendModeControls = createHigherOrderComponent( ( BlockEdit ) => {
 
         return (
             <>
-                <BlockEdit { ...props } />
-                { isSelected && (
+                <BlockEdit {...props} />
+                {isSelected && (
                     <InspectorControls>
-                        <PanelBody 
-                            title={ __( 'Blend Mode', 'advanced-blend-mode-block' ) }
-                            initialOpen={ blendSettings.enabled }
+                        <PanelBody
+                            title={__('Blend Mode', 'advanced-blend-mode-block')}
+                            initialOpen={blendSettings.enabled}
                         >
-                            <VStack spacing={ 4 }>
+                            <VStack spacing={4}>
                                 <ToggleControl
-                                    label={ __( 'Enable Blend Mode', 'advanced-blend-mode-block' ) }
-                                    checked={ blendSettings.enabled }
-                                    onChange={ ( enabled ) => updateBlendSettings({ enabled }) }
+                                    label={__('Enable Blend Mode', 'advanced-blend-mode-block')}
+                                    checked={blendSettings.enabled}
+                                    onChange={(enabled) => updateBlendSettings({ enabled })}
                                 />
 
-                                { blendSettings.enabled && (
+                                {blendSettings.enabled && (
                                     <>
                                         <RadioControl
-                                            label={ __( 'Effect Type', 'advanced-blend-mode-block' ) }
-                                            selected={ blendSettings.mode }
-                                            options={ [
-                                                { label: __( 'Simple CSS', 'advanced-blend-mode-block' ), value: 'simple' },
-                                                { label: __( 'Stripe Effect', 'advanced-blend-mode-block' ), value: 'stripe' }
-                                            ] }
-                                            onChange={ ( mode ) => updateBlendSettings({ mode }) }
+                                            label={__('Effect Type', 'advanced-blend-mode-block')}
+                                            selected={blendSettings.mode}
+                                            options={[
+                                                { label: __('Simple CSS', 'advanced-blend-mode-block'), value: 'simple' },
+                                                { label: __('Stripe Effect', 'advanced-blend-mode-block'), value: 'stripe' }
+                                            ]}
+                                            onChange={(mode) => updateBlendSettings({ mode })}
                                         />
 
-                                        <SelectControl
-                                            label={ __( 'Blend Mode', 'advanced-blend-mode-block' ) }
-                                            value={ blendSettings.blendMode }
-                                            options={ BLEND_MODES }
-                                            onChange={ ( blendMode ) => updateBlendSettings({ blendMode }) }
-                                        />
+                                        {blendSettings.mode === 'simple' && (
+                                            <SelectControl
+                                                label={__('Blend Mode', 'advanced-blend-mode-block')}
+                                                value={blendSettings.blendMode}
+                                                options={BLEND_MODES}
+                                                onChange={(blendMode) => updateBlendSettings({ blendMode })}
+                                            />
+                                        )}
 
-                                        { blendSettings.mode === 'stripe' && (
+                                        {blendSettings.mode === 'stripe' && (
                                             <>
                                                 <BaseControl
-                                                    label={ __( 'Base Color', 'advanced-blend-mode-block' ) }
-                                                    help={ __( 'The underlying text color (light color works best)', 'advanced-blend-mode-block' ) }
+                                                    label={
+                                                        <HStack>
+                                                            <span>{__('Base Color', 'advanced-blend-mode-block')}</span>
+                                                            <ColorIndicator colorValue={blendSettings.baseColor} />
+                                                        </HStack>
+                                                    }
+                                                    help={__('The underlying text color', 'advanced-blend-mode-block')}
                                                 >
-                                                    <ColorPicker
-                                                        color={ blendSettings.baseColor }
-                                                        onChange={ ( baseColor ) => updateBlendSettings({ baseColor }) }
-                                                        enableAlpha={ false }
+                                                    <ColorPalette
+                                                        value={blendSettings.baseColor}
+                                                        onChange={(baseColor) => updateBlendSettings({ baseColor })}
+                                                        enableAlpha={true}
                                                     />
                                                 </BaseControl>
 
                                                 <BaseControl
-                                                    label={ __( 'Overlay Color', 'advanced-blend-mode-block' ) }
-                                                    help={ __( 'The blending layer color (dark color works best)', 'advanced-blend-mode-block' ) }
+                                                    label={
+                                                        <HStack>
+                                                            <span>{__('Overlay Color', 'advanced-blend-mode-block')}</span>
+                                                            <ColorIndicator colorValue={blendSettings.overlayColor} />
+                                                        </HStack>
+                                                    }
+                                                    help={__('Color for both burn and soft layers (supports opacity)', 'advanced-blend-mode-block')}
                                                 >
-                                                    <ColorPicker
-                                                        color={ blendSettings.overlayColor }
-                                                        onChange={ ( overlayColor ) => updateBlendSettings({ overlayColor }) }
-                                                        enableAlpha={ false }
+                                                    <ColorPalette
+                                                        value={blendSettings.overlayColor}
+                                                        onChange={(overlayColor) => updateBlendSettings({ overlayColor })}
+                                                        enableAlpha={true}
                                                     />
                                                 </BaseControl>
 
+                                                <SelectControl
+                                                    label={__('Burn Layer Blend Mode', 'advanced-blend-mode-block')}
+                                                    value={blendSettings.burnBlendMode || 'normal'}
+                                                    options={BLEND_MODES}
+                                                    onChange={(burnBlendMode) => updateBlendSettings({ burnBlendMode })}
+                                                    help={__('Mix blend mode for the burn layer', 'advanced-blend-mode-block')}
+                                                />
+
                                                 <RangeControl
-                                                    label={ __( 'Soft Overlay Opacity', 'advanced-blend-mode-block' ) }
-                                                    value={ blendSettings.overlayOpacity }
-                                                    onChange={ ( overlayOpacity ) => updateBlendSettings({ overlayOpacity }) }
-                                                    min={ 0 }
-                                                    max={ 1 }
-                                                    step={ 0.05 }
+                                                    label={__('Soft Layer Opacity', 'advanced-blend-mode-block')}
+                                                    value={blendSettings.softOpacity ?? 1}
+                                                    onChange={(softOpacity) => updateBlendSettings({ softOpacity })}
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.05}
                                                 />
                                             </>
                                         )}
@@ -191,7 +215,7 @@ const withBlendModeControls = createHigherOrderComponent( ( BlockEdit ) => {
             </>
         );
     };
-}, 'withBlendModeControls' );
+}, 'withBlendModeControls');
 
 addFilter(
     'editor.BlockEdit',
@@ -202,18 +226,18 @@ addFilter(
 /**
  * Add blend mode classes to block wrapper in editor
  */
-const withBlendModeClasses = createHigherOrderComponent( ( BlockListBlock ) => {
-    return ( props ) => {
+const withBlendModeClasses = createHigherOrderComponent((BlockListBlock) => {
+    return (props) => {
         const { name, attributes } = props;
 
-        if ( ! SUPPORTED_BLOCKS.includes( name ) ) {
-            return <BlockListBlock { ...props } />;
+        if (!SUPPORTED_BLOCKS.includes(name)) {
+            return <BlockListBlock {...props} />;
         }
 
         const blendSettings = attributes.advancedBlendMode || {};
 
-        if ( ! blendSettings.enabled ) {
-            return <BlockListBlock { ...props } />;
+        if (!blendSettings.enabled) {
+            return <BlockListBlock {...props} />;
         }
 
         const { mode, blendMode, baseColor, overlayColor, overlayOpacity } = {
@@ -225,7 +249,7 @@ const withBlendModeClasses = createHigherOrderComponent( ( BlockListBlock ) => {
         const wrapperProps = {
             ...props.wrapperProps,
             style: {
-                ...( props.wrapperProps?.style || {} ),
+                ...(props.wrapperProps?.style || {}),
                 '--abmb-blend-mode': blendMode,
                 '--abmb-base-color': baseColor,
                 '--abmb-overlay-color': overlayColor,
@@ -233,19 +257,19 @@ const withBlendModeClasses = createHigherOrderComponent( ( BlockListBlock ) => {
             }
         };
 
-        const className = mode === 'simple' 
+        const className = mode === 'simple'
             ? 'abmb-blend-simple abmb-editor-preview'
             : 'abmb-blend-stripe-preview abmb-editor-preview';
 
         return (
-            <BlockListBlock 
-                { ...props } 
-                wrapperProps={ wrapperProps }
-                className={ className }
+            <BlockListBlock
+                {...props}
+                wrapperProps={wrapperProps}
+                className={className}
             />
         );
     };
-}, 'withBlendModeClasses' );
+}, 'withBlendModeClasses');
 
 addFilter(
     'editor.BlockListBlock',
