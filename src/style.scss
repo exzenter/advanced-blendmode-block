@@ -1,0 +1,85 @@
+/**
+ * Frontend styles for Advanced Blend Mode Block
+ * Stripe-style triple layer effect
+ */
+
+/* Simple Blend Mode */
+.abmb-blend-simple {
+    mix-blend-mode: var(--abmb-blend-mode, normal);
+}
+
+/* Stripe Effect - Triple Layer */
+.abmb-blend-stripe {
+    position: relative;
+    display: inline-block;
+
+    /* Base layer - the readable layer */
+    .abmb-stripe-base {
+        position: relative;
+        color: var(--abmb-base-color, #bdc6d2);
+        z-index: 1;
+    }
+
+    /* Color burn layer - creates the blend effect on gradient */
+    .abmb-stripe-burn {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        color: var(--abmb-overlay-color, #3a3a3a);
+        mix-blend-mode: var(--abmb-blend-mode, color-burn);
+        pointer-events: none;
+        user-select: none;
+        z-index: 2;
+    }
+
+    /* Soft overlay - provides legibility on white backgrounds */
+    .abmb-stripe-soft {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        color: var(--abmb-overlay-color, #3a3a3a);
+        opacity: var(--abmb-overlay-opacity, 0.3);
+        pointer-events: none;
+        user-select: none;
+        z-index: 2;
+    }
+}
+
+/* Heading-specific adjustments */
+h1.abmb-blend-stripe,
+h2.abmb-blend-stripe,
+h3.abmb-blend-stripe,
+h4.abmb-blend-stripe,
+h5.abmb-blend-stripe,
+h6.abmb-blend-stripe {
+    display: block;
+
+    .abmb-stripe-base,
+    .abmb-stripe-burn,
+    .abmb-stripe-soft {
+        display: block;
+    }
+}
+
+/* Paragraph adjustments */
+p.abmb-blend-stripe {
+    display: block;
+
+    .abmb-stripe-base,
+    .abmb-stripe-burn,
+    .abmb-stripe-soft {
+        display: block;
+    }
+}
+
+/* Group/Row/Stack container adjustments */
+.wp-block-group.abmb-blend-stripe,
+.wp-block-row.abmb-blend-stripe,
+.wp-block-stack.abmb-blend-stripe {
+    /* For container blocks, apply blend to the entire container */
+    mix-blend-mode: var(--abmb-blend-mode, color-burn);
+}

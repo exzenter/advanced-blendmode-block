@@ -1,0 +1,26 @@
+{
+  "name": "advanced-blend-mode-block",
+  "version": "1.0.0",
+  "description": "Add mix-blend-mode controls to Gutenberg blocks with Stripe-style triple-layer effect",
+  "author": "",
+  "license": "GPL-2.0-or-later",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "format": "wp-scripts format",
+    "lint:js": "wp-scripts lint-js"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^27.0.0"
+  },
+  "dependencies": {
+    "@wordpress/block-editor": "^12.0.0",
+    "@wordpress/blocks": "^12.0.0",
+    "@wordpress/components": "^25.0.0",
+    "@wordpress/compose": "^6.0.0",
+    "@wordpress/element": "^5.0.0",
+    "@wordpress/hooks": "^3.0.0",
+    "@wordpress/i18n": "^4.0.0"
+  }
+}

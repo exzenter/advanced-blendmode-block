@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+.npm/
+
+# Build
+# We are committing build assets for this plugin to facilitate easy installation
+# build/
+
+# OS/IDE
+.DS_Store
+.vscode/
+.idea/
+*.log
