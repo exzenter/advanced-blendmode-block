@@ -115,26 +115,27 @@ function abmb_render_block_with_blend( $block_content, $block ) {
     if ( $mode === 'simple' ) {
         $style = sprintf( '--abmb-blend-mode: %s;', esc_attr( $blend_mode ) );
         
-        // Insert class and style into the block
+        // Insert class into the block (allow leading whitespace)
         $block_content = preg_replace(
-            '/^(<\w+)([^>]*class=["\'])/',
+            '/^(\s*<\w+)([^>]*class=["\'])/',
             '$1$2abmb-blend-simple ',
             $block_content,
             1
         );
         
-        // Add style attribute
-        if ( strpos( $block_content, 'style="' ) !== false ) {
+        // Check if style attribute exists in the opening tag
+        if ( preg_match( '/^(\s*<\w+[^>]*?)style=["\']/', $block_content ) ) {
             $block_content = preg_replace(
-                '/style="/',
-                'style="' . $style,
+                '/^(\s*<\w+[^>]*?style=["\'])/',
+                '$1' . $style,
                 $block_content,
                 1
             );
         } else {
+            // Add style attribute if missing
             $block_content = preg_replace(
-                '/^(<\w+)/',
-                '$1 style="' . $style . '"',
+                '/^(\s*<\w+)(\s|>)/',
+                '$1 style="' . $style . '"$2',
                 $block_content,
                 1
             );
@@ -168,26 +169,27 @@ function abmb_render_block_with_blend( $block_content, $block ) {
         // Replace inner content with layers
         $block_content = abmb_replace_inner_content( $block_content, $layers );
         
-        // Add wrapper class
+        // Add wrapper class (allow leading whitespace)
         $block_content = preg_replace(
-            '/^(<\w+)([^>]*class=["\'])/',
+            '/^(\s*<\w+)([^>]*class=["\'])/',
             '$1$2abmb-blend-stripe ',
             $block_content,
             1
         );
         
-        // Add style attribute
-        if ( strpos( $block_content, 'style="' ) !== false ) {
+        // Check if style attribute exists in the opening tag
+        if ( preg_match( '/^(\s*<\w+[^>]*?)style=["\']/', $block_content ) ) {
             $block_content = preg_replace(
-                '/style="/',
-                'style="' . $css_vars,
+                '/^(\s*<\w+[^>]*?style=["\'])/',
+                '$1' . $css_vars,
                 $block_content,
                 1
             );
         } else {
+            // Add style attribute if missing
             $block_content = preg_replace(
-                '/^(<\w+)/',
-                '$1 style="' . $css_vars . '"',
+                '/^(\s*<\w+)(\s|>)/',
+                '$1 style="' . $css_vars . '"$2',
                 $block_content,
                 1
             );
