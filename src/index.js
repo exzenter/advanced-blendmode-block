@@ -6,7 +6,7 @@
 
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { InspectorControls, BlockControls } from '@wordpress/block-editor';
+import { InspectorControls } from '@wordpress/block-editor';
 import {
     PanelBody,
     ToggleControl,
@@ -17,15 +17,12 @@ import {
     ColorIndicator,
     Dropdown,
     Button,
-    ToolbarGroup,
-    ToolbarButton,
     __experimentalHStack as HStack,
     __experimentalVStack as VStack,
     BaseControl,
     TextControl
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { eye } from '@wordpress/icons';
 
 import './editor.scss';
 import './style.scss';
@@ -69,8 +66,7 @@ const DEFAULT_BLEND_SETTINGS = {
     baseColor: '#bdc6d2',         // Base text color
     overlayColor: '#0000003b',    // Overlay color with alpha (black 23% opacity)
     softOpacity: 1,               // Soft layer opacity
-    softZIndex: -2,               // Soft layer z-index (behind base)
-    previewEnabled: false         // Editor preview toggle
+    softZIndex: -2                // Soft layer z-index (behind base)
 };
 
 /**
@@ -126,18 +122,6 @@ const withBlendModeControls = createHigherOrderComponent((BlockEdit) => {
 
         return (
             <>
-                {blendSettings.enabled && blendSettings.mode === 'stripe' && (
-                    <BlockControls>
-                        <ToolbarGroup>
-                            <ToolbarButton
-                                icon={eye}
-                                label={__('Preview Stripe Effect', 'advanced-blend-mode-block')}
-                                isPressed={blendSettings.previewEnabled}
-                                onClick={() => updateBlendSettings({ previewEnabled: !blendSettings.previewEnabled })}
-                            />
-                        </ToolbarGroup>
-                    </BlockControls>
-                )}
                 <BlockEdit {...props} />
                 {isSelected && (
                     <InspectorControls>
@@ -289,7 +273,7 @@ const withBlendModeClasses = createHigherOrderComponent((BlockListBlock) => {
             return <BlockListBlock {...props} />;
         }
 
-        const { mode, blendMode, baseColor, overlayColor, baseBlendMode, burnBlendMode, softOpacity, previewEnabled } = {
+        const { mode, blendMode, baseColor, overlayColor, overlayOpacity } = {
             ...DEFAULT_BLEND_SETTINGS,
             ...blendSettings
         };
@@ -302,18 +286,13 @@ const withBlendModeClasses = createHigherOrderComponent((BlockListBlock) => {
                 '--abmb-blend-mode': blendMode,
                 '--abmb-base-color': baseColor,
                 '--abmb-overlay-color': overlayColor,
-                '--abmb-base-blend-mode': baseBlendMode,
-                '--abmb-burn-blend-mode': burnBlendMode,
-                '--abmb-soft-opacity': softOpacity
+                '--abmb-overlay-opacity': overlayOpacity
             }
         };
 
-        let className = 'abmb-editor-preview';
-        if (mode === 'simple') {
-            className += ' abmb-blend-simple';
-        } else if (mode === 'stripe' && previewEnabled) {
-            className += ' abmb-stripe-preview-active';
-        }
+        const className = mode === 'simple'
+            ? 'abmb-blend-simple abmb-editor-preview'
+            : 'abmb-blend-stripe-preview abmb-editor-preview';
 
         return (
             <BlockListBlock
