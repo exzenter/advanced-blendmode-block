@@ -146,8 +146,30 @@ function abmb_render_block_with_blend( $block_content, $block ) {
     
     // Stripe mode - triple layer effect
     if ( $mode === 'stripe' ) {
-        // Extract inner content for duplication
-        $inner_content = abmb_get_inner_text_content( $block_content );
+        // Extract inner content (allow for nested HTML tags)
+        $first_close = strpos( $block_content, '>' );
+        $last_open = strrpos( $block_content, '<' );
+        
+        $inner_content = '';
+        if ( $first_close !== false && $last_open !== false && $last_open > $first_close ) {
+            $inner_content = substr( $block_content, $first_close + 1, $last_open - $first_close - 1 );
+        } else {
+             $inner_content = strip_tags( $block_content );
+        }
+        
+        // Extract attributes from original block to copy to siblings
+        $existing_classes = '';
+        $existing_styles = '';
+        
+        if ( preg_match( '/^(\s*<\w+)([^>]+)>/', $block_content, $matches ) ) {
+             $attrs_string = $matches[2];
+             if ( preg_match( '/class=["\']([^"\']+)["\']/', $attrs_string, $c_match ) ) {
+                 $existing_classes = $c_match[1];
+             }
+             if ( preg_match( '/style=["\']([^"\']+)["\']/', $attrs_string, $s_match ) ) {
+                 $existing_styles = $s_match[1];
+             }
+        }
         
         // CSS custom properties
         $css_vars = sprintf(
@@ -158,44 +180,44 @@ function abmb_render_block_with_blend( $block_content, $block ) {
             esc_attr( $overlay_opacity )
         );
         
-        // Create the layered structure
-        $layers = sprintf(
-            '<span class="abmb-stripe-base">%1$s</span>' .
-            '<span class="abmb-stripe-burn" aria-hidden="true">%1$s</span>' .
-            '<span class="abmb-stripe-soft" aria-hidden="true">%1$s</span>',
-            $inner_content
-        );
-        
-        // Replace inner content with layers
-        $block_content = abmb_replace_inner_content( $block_content, $layers );
-        
-        // Add wrapper class (allow leading whitespace)
+        // Add base class to original block (allow leading whitespace)
         $block_content = preg_replace(
             '/^(\s*<\w+)([^>]*class=["\'])/',
-            '$1$2abmb-blend-stripe ',
+            '$1$2abmb-stripe-base ',
             $block_content,
             1
         );
         
-        // Check if style attribute exists in the opening tag
-        if ( preg_match( '/^(\s*<\w+[^>]*?)style=["\']/', $block_content ) ) {
-            $block_content = preg_replace(
-                '/^(\s*<\w+[^>]*?style=["\'])/',
-                '$1' . $css_vars,
-                $block_content,
-                1
-            );
-        } else {
-            // Add style attribute if missing
-            $block_content = preg_replace(
+        // If no class attribute existed, add one
+        if ( strpos( $block_content, 'abmb-stripe-base' ) === false ) {
+             $block_content = preg_replace(
                 '/^(\s*<\w+)(\s|>)/',
-                '$1 style="' . $css_vars . '"$2',
+                '$1 class="abmb-stripe-base"$2',
                 $block_content,
                 1
             );
         }
+
+        // Construct the sibling layers
+        // We ensure they have the same classes and styles as the original for visual matching
+        // But we add our specific identifers
+        $layers = sprintf(
+            '<div class="%1$s abmb-stripe-burn" style="%2$s" aria-hidden="true">%3$s</div>' .
+            '<div class="%1$s abmb-stripe-soft" style="%2$s" aria-hidden="true">%3$s</div>',
+            esc_attr( $existing_classes ),
+            esc_attr( $existing_styles ),
+            $inner_content
+        );
         
-        return $block_content;
+        // Wrap everything in a container
+        $wrapped_content = sprintf(
+            '<div class="abmb-stripe-wrapper" style="%s">%s%s</div>',
+            $css_vars,
+            $block_content,
+            $layers
+        );
+        
+        return $wrapped_content;
     }
     
     return $block_content;
@@ -203,19 +225,5 @@ function abmb_render_block_with_blend( $block_content, $block ) {
 add_filter( 'render_block', 'abmb_render_block_with_blend', 10, 2 );
 
 /**
- * Extract text content from block HTML
+ * Helper functions removed as logic is now inlined
  */
-function abmb_get_inner_text_content( $html ) {
-    // Match content between opening and closing tags
-    if ( preg_match( '/>([^<]*)<\//', $html, $matches ) ) {
-        return $matches[1];
-    }
-    return '';
-}
-
-/**
- * Replace inner text content in block HTML
- */
-function abmb_replace_inner_content( $html, $new_content ) {
-    return preg_replace( '/(>)[^<]*(<\/)/', '$1' . $new_content . '$2', $html, 1 );
-}
