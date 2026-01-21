@@ -57,8 +57,15 @@
         positionOverlays();
     }
 
-    // Re-run on window resize
-    window.addEventListener('resize', positionOverlays);
+    // Debounce helper to prevent rapid-fire calls
+    let resizeTimeout;
+    function handleResize() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(positionOverlays, 100);
+    }
+
+    // Re-run on window resize (debounced to prevent jank)
+    window.addEventListener('resize', handleResize);
 
     // Re-run on font load (in case fonts affect sizing)
     if (document.fonts) {

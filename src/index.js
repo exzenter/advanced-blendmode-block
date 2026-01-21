@@ -63,8 +63,8 @@ const DEFAULT_BLEND_SETTINGS = {
     blendMode: 'color-burn',
     baseBlendMode: 'color-burn',  // Blend mode for base element (default: color-burn)
     burnBlendMode: 'normal',      // Blend mode for burn layer (default: normal/unset)
-    baseColor: '#bdc6d2',         // Base text color
-    overlayColor: '#0000003b',    // Overlay color with alpha (black 23% opacity)
+    burnColor: '#bdc6d2',         // Burn layer text color
+    softColor: '#0000003b',       // Soft layer color with alpha (black 23% opacity)
     softOpacity: 1,               // Soft layer opacity
     softZIndex: -2                // Soft layer z-index (behind base)
 };
@@ -160,7 +160,7 @@ const withBlendModeControls = createHigherOrderComponent((BlockEdit) => {
                                         {blendSettings.mode === 'stripe' && (
                                             <>
                                                 <BaseControl
-                                                    label={__('Base Color', 'advanced-blend-mode-block')}
+                                                    label={__('Burn Color', 'advanced-blend-mode-block')}
                                                 >
                                                     <Dropdown
                                                         renderToggle={({ isOpen, onToggle }) => (
@@ -170,16 +170,16 @@ const withBlendModeControls = createHigherOrderComponent((BlockEdit) => {
                                                                 style={{ padding: '4px 8px', height: 'auto' }}
                                                             >
                                                                 <HStack spacing={2}>
-                                                                    <ColorIndicator colorValue={blendSettings.baseColor} />
-                                                                    <span>{blendSettings.baseColor || 'Select'}</span>
+                                                                    <ColorIndicator colorValue={blendSettings.burnColor} />
+                                                                    <span>{blendSettings.burnColor || 'Select'}</span>
                                                                 </HStack>
                                                             </Button>
                                                         )}
                                                         renderContent={() => (
                                                             <div style={{ padding: '16px', minWidth: '260px' }}>
                                                                 <ColorPalette
-                                                                    value={blendSettings.baseColor}
-                                                                    onChange={(baseColor) => updateBlendSettings({ baseColor })}
+                                                                    value={blendSettings.burnColor}
+                                                                    onChange={(burnColor) => updateBlendSettings({ burnColor })}
                                                                     enableAlpha={true}
                                                                 />
                                                             </div>
@@ -188,7 +188,7 @@ const withBlendModeControls = createHigherOrderComponent((BlockEdit) => {
                                                 </BaseControl>
 
                                                 <BaseControl
-                                                    label={__('Overlay Color', 'advanced-blend-mode-block')}
+                                                    label={__('Soft Color', 'advanced-blend-mode-block')}
                                                 >
                                                     <Dropdown
                                                         renderToggle={({ isOpen, onToggle }) => (
@@ -198,16 +198,16 @@ const withBlendModeControls = createHigherOrderComponent((BlockEdit) => {
                                                                 style={{ padding: '4px 8px', height: 'auto' }}
                                                             >
                                                                 <HStack spacing={2}>
-                                                                    <ColorIndicator colorValue={blendSettings.overlayColor} />
-                                                                    <span>{blendSettings.overlayColor || 'Select'}</span>
+                                                                    <ColorIndicator colorValue={blendSettings.softColor} />
+                                                                    <span>{blendSettings.softColor || 'Select'}</span>
                                                                 </HStack>
                                                             </Button>
                                                         )}
                                                         renderContent={() => (
                                                             <div style={{ padding: '16px', minWidth: '260px' }}>
                                                                 <ColorPalette
-                                                                    value={blendSettings.overlayColor}
-                                                                    onChange={(overlayColor) => updateBlendSettings({ overlayColor })}
+                                                                    value={blendSettings.softColor}
+                                                                    onChange={(softColor) => updateBlendSettings({ softColor })}
                                                                     enableAlpha={true}
                                                                 />
                                                             </div>

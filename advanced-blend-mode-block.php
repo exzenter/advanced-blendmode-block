@@ -120,9 +120,8 @@ function abmb_render_block_with_blend( $block_content, $block ) {
     
     $mode = $blend_settings['mode'] ?? 'simple';
     $blend_mode = $blend_settings['blendMode'] ?? 'color-burn';
-    $base_color = $blend_settings['baseColor'] ?? '#bdc6d2';
-    $overlay_color = $blend_settings['overlayColor'] ?? '#3a3a3a';
-    $overlay_opacity = $blend_settings['overlayOpacity'] ?? 0.3;
+    $burn_color = $blend_settings['burnColor'] ?? '#bdc6d2';
+    $soft_color = $blend_settings['softColor'] ?? '#0000003b';
     
     // Simple mode - just add CSS custom property
     if ( $mode === 'simple' ) {
@@ -169,11 +168,11 @@ function abmb_render_block_with_blend( $block_content, $block ) {
         $soft_opacity = $blend_settings['softOpacity'] ?? 1;
         $soft_z_index = $blend_settings['softZIndex'] ?? -2;
         
-        // CSS custom properties for the base element
+        // CSS custom properties for the elements
         $css_vars = sprintf(
-            '--abmb-base-color: %s; --abmb-overlay-color: %s; --abmb-base-blend-mode: %s; --abmb-burn-blend-mode: %s; --abmb-soft-opacity: %s; --abmb-soft-z-index: %s;',
-            esc_attr( $base_color ),
-            esc_attr( $overlay_color ),
+            '--abmb-burn-color: %s; --abmb-soft-color: %s; --abmb-base-blend-mode: %s; --abmb-burn-blend-mode: %s; --abmb-soft-opacity: %s; --abmb-soft-z-index: %s;',
+            esc_attr( $burn_color ),
+            esc_attr( $soft_color ),
             esc_attr( $base_blend_mode ),
             esc_attr( $burn_blend_mode ),
             esc_attr( $soft_opacity ),

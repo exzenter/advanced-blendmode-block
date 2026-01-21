@@ -1,0 +1,15 @@
+/**
+ * Editor styles for Advanced Blend Mode Block
+ * These styles only apply in the Gutenberg editor, not the frontend.
+ */
+
+/* Editor preview for simple blend mode */
+.abmb-editor-preview.abmb-blend-simple {
+    mix-blend-mode: var(--abmb-blend-mode, normal);
+}
+
+/* Editor preview for stripe effect - simplified since we can't do the full triple layer in editor */
+.abmb-editor-preview.abmb-blend-stripe-preview {
+    color: var(--abmb-base-color, #bdc6d2);
+    mix-blend-mode: var(--abmb-base-blend-mode, color-burn);
+}
