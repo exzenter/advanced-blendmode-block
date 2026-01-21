@@ -205,13 +205,15 @@ function abmb_render_block_with_blend( $block_content, $block ) {
         }
         
         // Create the 2 sibling divs (NOT nested, appended AFTER the original element)
+        // Convert newlines back to <br> for proper line breaks in the layers
+        $layer_content = nl2br( esc_html( $inner_content ) );
         $sibling_divs = sprintf(
             '<div class="abmb-stripe-burn" aria-hidden="true" style="%s">%s</div>' .
             '<div class="abmb-stripe-soft" aria-hidden="true" style="%s">%s</div>',
             $css_vars,
-            esc_html( $inner_content ),
+            $layer_content,
             $css_vars,
-            esc_html( $inner_content )
+            $layer_content
         );
         
         // Append sibling divs AFTER the original block content (as siblings)
@@ -225,14 +227,18 @@ function abmb_render_block_with_blend( $block_content, $block ) {
 add_filter( 'render_block', 'abmb_render_block_with_blend', 10, 2 );
 
 /**
- * Extract text content from block HTML
+ * Extract text content from block HTML (preserves line breaks as \n)
  */
 function abmb_get_inner_text_content( $html ) {
-    // Match content between opening and closing tags
-    if ( preg_match( '/>([^<]*)<\//', $html, $matches ) ) {
-        return $matches[1];
-    }
-    return '';
+    // Remove the outer tag first
+    $inner = preg_replace( '/^<[^>]+>/', '', $html );
+    $inner = preg_replace( '/<\/\w+>\s*$/', '', $inner );
+    
+    // Convert <br> tags to newlines, then strip remaining tags
+    $inner = preg_replace( '/<br\s*\/?>/i', "\n", $inner );
+    $inner = strip_tags( $inner );
+    
+    return trim( $inner );
 }
 
 /**

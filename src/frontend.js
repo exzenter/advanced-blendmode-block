@@ -20,18 +20,21 @@
 
             // Get the base element's position and dimensions
             const rect = base.getBoundingClientRect();
-            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            // Use offsetTop/offsetLeft which are relative to the offsetParent
+            // This correctly positions the overlays relative to the same containing block
+            const relativeTop = base.offsetTop;
+            const relativeLeft = base.offsetLeft;
 
             // Get computed styles from base element to copy to overlays
             const computedStyle = window.getComputedStyle(base);
 
             // Position and style both overlays to match the base exactly
             [burn, soft].forEach(function (overlay) {
-                // Position absolutely relative to document
+                // Position absolutely relative to offsetParent
                 overlay.style.position = 'absolute';
-                overlay.style.top = (rect.top + scrollTop) + 'px';
-                overlay.style.left = (rect.left + scrollLeft) + 'px';
+                overlay.style.top = relativeTop + 'px';
+                overlay.style.left = relativeLeft + 'px';
                 overlay.style.width = rect.width + 'px';
                 overlay.style.height = rect.height + 'px';
 
