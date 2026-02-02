@@ -49,6 +49,9 @@
                 overlay.style.padding = computedStyle.padding;
                 overlay.style.margin = '0';
                 overlay.style.boxSizing = 'border-box';
+
+                // Make visible now that it's positioned
+                overlay.style.visibility = 'visible';
             });
         });
     }

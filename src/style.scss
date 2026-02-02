@@ -32,6 +32,8 @@
     user-select: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    visibility: hidden;
+    /* Hide until positioned by JS to prevent layout shift */
 }
 
 /* Burn layer - uses burn color */
